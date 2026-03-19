@@ -40,6 +40,29 @@ export default function Session({
       }
     }
     
+    // Fraction Layout
+    if (current.type === 'frac') {
+      const tokens = current.question.split(' ');
+      return (
+        <div className="flex flex-wrap items-center justify-center gap-3 md:gap-4 text-5xl md:text-6xl font-black text-gray-800 p-8 bg-white rounded-3xl shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] border-4 border-blue-100">
+          {tokens.map((token, i) => {
+            if (token.includes('/')) {
+              const [num, den] = token.split('/');
+              return (
+                <div key={i} className="flex flex-col items-center justify-center mx-1">
+                  <span className={`leading-none ${num === '?' ? 'text-blue-500' : ''}`}>{num}</span>
+                  <span className="w-[110%] h-[4px] md:h-[6px] bg-gray-800 my-1 md:my-2 rounded-full"></span>
+                  <span className="leading-none">{den}</span>
+                </div>
+              );
+            }
+            return <div key={i} className="mx-1 pt-2">{token}</div>;
+          })}
+        </div>
+      );
+    }
+
+    // Default Layout
     return (
       <div className="text-4xl md:text-6xl font-black text-gray-800 p-10 bg-white rounded-3xl shadow-[inset_0_0_20px_rgba(0,0,0,0.05)] border-4 border-blue-100 break-keep leading-tight">
         {current.question}
