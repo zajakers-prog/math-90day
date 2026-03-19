@@ -3,12 +3,14 @@ import { CURRICULUM_US } from '../data/curriculumUS.js';
 import { REASONING_BANK } from '../data/reasoning.js';
 
 export function seededRandom(seed) {
-  const x = Math.sin(seed) * 10000;
-  return x - Math.floor(x);
+  let t = seed += 0x6D2B79F5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
 }
 
 export function seedRandom(index, seed) {
-  return seededRandom(seed + index * 12345);
+  return seededRandom(seed + index * 1234567);
 }
 
 export function getSeedForDay(region, grade, day) {
@@ -41,13 +43,18 @@ export function generateProblems(region, grade, day) {
   const max = range ? range[1] : 9;
   
   const seed = getSeedForDay(region, gradeKey, day);
+  const usedQuestions = new Set();
 
   for (let i = 0; i < 27; i++) {
-    const s = seed + i;
-    const a = randInt(i, s, min, max);
-    let b = randInt(i + 100, s, min, max);
+    let problem = null;
+    let attempts = 0;
     
-    let problem = { type: 'basic', question: 'Error = ?', answer: 0, operation: '+' };
+    while (attempts < 50) {
+      const s = seed + i * 1000 + attempts * 137;
+      const a = randInt(i, s, min, max);
+      let b = randInt(i + 100, s, min, max);
+      
+      problem = { type: 'basic', question: 'Error = ?', answer: 0, operation: '+' };
 
     // A generic generator matching keywords in `type`
     if (type.includes('word-add') || type.includes('word-sub') || type.includes('word-mix')) {
@@ -79,7 +86,18 @@ export function generateProblems(region, grade, day) {
           isTextAnswer: false
         };
       }
-    } else if (type.includes('div')) {
+    } else if (type.includes('frac-div')) {
+      const denom = randInt(i, s, 3, 9);
+      const answerNum = randInt(i+1, s, 2, 9); 
+      const natural = randInt(i+2, s, 2, 7); 
+      const startNum = answerNum * natural; 
+      problem = { type: 'frac', question: `${startNum}/${denom} ÷ ${natural} = ?/${denom}`, answer: answerNum, isTextAnswer: false, hint: `분자를 자연수로 나누세요. (${startNum} ÷ ${natural})` };
+    } else if (type.includes('frac-mul')) {
+      const denom = randInt(i, s, 3, 9);
+      const num = randInt(i+1, s, 1, denom-1);
+      const natural = randInt(i+2, s, 2, 7);
+      problem = { type: 'frac', question: `${num}/${denom} × ${natural} = ?/${denom}`, answer: num * natural, isTextAnswer: false, hint: `분자와 자연수를 곱하세요.` };
+    } else if (type.includes('div') && !type.includes('frac')) {
       // Ensure clean division
       const divisor = Math.max(2, Math.min(b, 15));
       const quotient = Math.max(2, Math.min(Math.floor(a/divisor), 20));
@@ -103,7 +121,7 @@ export function generateProblems(region, grade, day) {
           operation: '÷'
         };
       }
-    } else if (type.includes('mul')) {
+    } else if (type.includes('mul') && !type.includes('frac')) {
       problem = { type: 'basic', question: `${a} × ${b} = ?`, answer: a * b, operation: '×' };
     } else if (type.includes('frac')) {
       // Basic fractions: output as strings
@@ -119,7 +137,7 @@ export function generateProblems(region, grade, day) {
           problem = { type: 'frac', question: `${big}/${denom} - ${small}/${denom} = ?/${denom}`, answer: big - small, operation: '-', hint: '분자끼리 빼세요' };
         }
       } else {
-         problem = { type: 'basic', question: `${a} × ${b} = ?`, answer: a * b, operation: '×' }; // fallback
+         problem = { type: 'frac', question: `${a}/10 + ${b}/10 = ?/10`, answer: a + b, operation: '+', hint: '분자끼리 더하세요' }; // safe fallback for unhandled fractions
       }
     } else if (type.includes('dec-add') || type.includes('dec-sub')) {
       const d1 = (a / 10).toFixed(1);
@@ -208,8 +226,19 @@ export function generateProblems(region, grade, day) {
          const quotient = (b % 8) + 2;
          problem = { type: 'basic', question: `${divisor*quotient} ÷ ${divisor} = ?`, answer: quotient, operation: '÷' };
       }
+    } // end of massive if-else branch
+    
+      if (!usedQuestions.has(problem.question)) {
+        usedQuestions.add(problem.question);
+        break; // unique problem found
+      }
+      attempts++;
+    } // end of while loop
+    
+    if (!problem || attempts >= 50) {
+       // Emergency fallback if curriculum range is too narrow to provide 27 distinct questions
+       problem = { type: 'basic', question: `${min + i} + ${max} = ?`, answer: min + i + max, operation: '+' };
     }
-
     problems.push(problem);
   }
 

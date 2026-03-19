@@ -10,6 +10,7 @@ export default function Session({
   const [userAnswer, setUserAnswer] = useState('');
   const [feedback, setFeedback] = useState('');
   const [showFeedback, setShowFeedback] = useState(false);
+  const [showHint, setShowHint] = useState(false);
 
   // i18n
   const isUS = region === 'US';
@@ -92,6 +93,12 @@ export default function Session({
     }, 1500);
   };
 
+  useEffect(() => {
+    setUserAnswer('');
+    setShowFeedback(false);
+    setShowHint(false);
+  }, [currentIndex]);
+
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') handleAnswer();
   };
@@ -144,8 +151,19 @@ export default function Session({
             {renderQuestion(current)}
             
             {current?.hint && (
-              <div className="text-xl md:text-2xl text-gray-800 font-bold mt-8 p-6 bg-yellow-100 rounded-2xl border-4 border-yellow-400 shadow-sm mx-auto w-fit max-w-full break-keep">
-                💡 {isUS ? 'Hint: ' : '힌트: '}{current.hint.replace('💡', '').trim()}
+              <div className="mt-8 mx-auto w-fit max-w-full">
+                {!showHint ? (
+                  <button 
+                    onClick={() => setShowHint(true)}
+                    className="text-orange-500 font-bold hover:text-orange-600 bg-orange-50 px-6 py-3 rounded-full text-lg shadow-sm transition-all border-2 border-orange-200 active:scale-95"
+                  >
+                    💡 {isUS ? 'Show Hint' : '힌트 보기'}
+                  </button>
+                ) : (
+                  <div className="text-xl md:text-2xl text-gray-800 font-bold p-6 bg-yellow-100 rounded-2xl border-4 border-yellow-400 shadow-sm break-keep">
+                    💡 {isUS ? 'Hint: ' : '힌트: '}{current.hint.replace('💡', '').trim()}
+                  </div>
+                )}
               </div>
             )}
           </div>
