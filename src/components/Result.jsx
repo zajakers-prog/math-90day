@@ -1,4 +1,5 @@
 import React from 'react';
+import AdBanner from './AdBanner';
 
 export default function Result({ 
   region, grade, currentDay, score, totalProblems, 
@@ -57,8 +58,10 @@ export default function Result({
             {percentage >= 70 && percentage < 90 && <p className="text-blue-600 font-black">💪 {isUS ? 'Good Work!' : '고생했어요!'}</p>}
             {percentage < 70 && <p className="text-orange-600 font-black">{isUS ? 'Keep trying!' : '내일 다시! 화이팅!'}</p>}
           </div>
+          
+          <AdBanner dataAdSlot="result-screen-ad" />
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-4 mt-8">
             {incorrectProblems.length > 0 && (
               <button
                 onClick={onStartReview}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { seedRandom, getSeedForDay } from '../utils/problemGenerator';
+import AdBanner from './AdBanner';
 
 export default function Session({ 
   region, grade, currentDay,
@@ -219,6 +220,10 @@ export default function Session({
                 {feedback}
               </div>
             )}
+          </div>
+          
+          <div className="mt-4">
+            <AdBanner dataAdSlot="session-screen-ad" />
           </div>
         </div>
       </div>
