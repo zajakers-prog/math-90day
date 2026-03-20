@@ -3,6 +3,7 @@ import Lobby from './components/Lobby';
 import Session from './components/Session';
 import Result from './components/Result';
 import Diagnosis from './components/Diagnosis';
+import CurriculumAudit from './components/CurriculumAudit';
 import { generateProblems, generateSmartTen } from './utils/problemGenerator';
 
 export default function MathDaily90() {
@@ -17,6 +18,7 @@ export default function MathDaily90() {
   const [sessionComplete, setSessionComplete] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
   const [retryCount, setRetryCount] = useState(0);
+  const [auditMode, setAuditMode] = useState(false);
   
   const getStorageKey = () => `math_progress_${region}_${grade}`;
 
@@ -101,8 +103,12 @@ export default function MathDaily90() {
     setGrade(null);
   };
 
+  if (auditMode) {
+    return <CurriculumAudit onExit={() => setAuditMode(false)} />;
+  }
+
   if (!region || !grade) {
-    return <Lobby setRegion={setRegion} setGrade={setGrade} />;
+    return <Lobby setRegion={setRegion} setGrade={setGrade} onEnableAudit={() => setAuditMode(true)} />;
   }
 
   if (sessionComplete) {

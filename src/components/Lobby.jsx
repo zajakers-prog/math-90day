@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function Lobby({ setRegion, setGrade }) {
+export default function Lobby({ setRegion, setGrade, onEnableAudit }) {
   const [selectedRegion, setSelectedRegion] = useState(null);
 
   const handleRegionSelect = (region) => {
@@ -75,6 +75,14 @@ export default function Lobby({ setRegion, setGrade }) {
           </div>
         )}
       </div>
+
+      <button 
+        onClick={onEnableAudit}
+        className="opacity-20 hover:opacity-100 text-xs text-slate-400 font-bold mt-12 transition-opacity underline underline-offset-4"
+      >
+        🔍 Curriculum Audit Mode
+      </button>
+
     </div>
   );
 }
