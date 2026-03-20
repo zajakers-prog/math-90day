@@ -290,3 +290,89 @@ export function generateProblems(region, grade, day) {
 
   return problems;
 }
+
+// -------------------------------------------------------------------------
+// Phase 11: Intelligent Tutoring System - Smart Retry Algorithm
+// Generates exactly 10 targeted questions based on the user's weaknesses.
+// -------------------------------------------------------------------------
+export function generateSmartTen(incorrectProblems, grade, region, day) {
+  const problems = [];
+  const seed = getSeedForDay(region, String(grade), day) + 9999;
+  
+  const gradeKey = String(grade);
+  const bank = REASONING_BANK[region]?.[gradeKey] || [];
+  const usedTypes = new Set();
+  
+  // Scenario A: Perfect Score! Reward with 10 random reasoning/application problems.
+  if (!incorrectProblems || incorrectProblems.length === 0) {
+    let rAttempts = 0;
+    while(problems.length < 10 && rAttempts < 50) {
+      if (bank.length > 0) {
+        const idx = randInt(100 + rAttempts, seed, 0, bank.length - 1);
+        if (!usedTypes.has(idx)) {
+           usedTypes.add(idx);
+           problems.push({ ...bank[idx], type: 'reasoning' });
+        }
+      } else {
+        problems.push({ type: 'basic', question: `Challenge ${rAttempts} + 99 = ?`, answer: rAttempts + 99, operation: '+' });
+      }
+      rAttempts++;
+    }
+    return problems;
+  }
+
+  // Scenario B/C: Calculate weak points frequencies
+  const typeFreq = {};
+  incorrectProblems.forEach(p => {
+     let t = p.type || 'basic';
+     if (t === 'reasoning') t = 'reasoning_bank';
+     typeFreq[t] = (typeFreq[t] || 0) + 1;
+  });
+
+  // Sort weak types by frequency descending
+  const sortedTypes = Object.keys(typeFreq).sort((a,b) => typeFreq[b] - typeFreq[a]);
+  // Pick Top 5 weak types max
+  const targetTypes = sortedTypes.slice(0, 5);
+  
+  let i = 0;
+  // Generate 2 problems per targeted weak type until we hit 10
+  while (problems.length < 10) {
+     for (const tgt of targetTypes) {
+        if (problems.length >= 10) break;
+        
+        let problem = null;
+        if (tgt === 'reasoning_bank' && bank.length > 0) {
+           const idx = randInt(500 + problems.length + i, seed, 0, bank.length - 1);
+           problem = { ...bank[idx], type: 'reasoning' };
+        } else {
+           // Find a sample from the incorrect problems to reuse its scale
+           const sample = incorrectProblems.find(p => p.type === tgt);
+           if (sample) {
+              // Simple mutation logic based on the text question
+              let a = randInt(1, seed + problems.length + i, 2, 50);
+              let b = randInt(2, seed + problems.length + i, 2, 50);
+              
+              if (sample.operation === '+') problem = { type: tgt, question: `${a} + ${b} = ?`, answer: a+b, operation: '+' };
+              else if (sample.operation === '-') {
+                let big = Math.max(a,b); let small = Math.min(a,b);
+                problem = { type: tgt, question: `${big} - ${small} = ?`, answer: big-small, operation: '-' };
+              }
+              else if (sample.operation === '×') problem = { type: tgt, question: `${a%15+2} × ${b%15+2} = ?`, answer: (a%15+2)*(b%15+2), operation: '×' };
+              else if (sample.operation === '÷') problem = { type: tgt, question: `${(b%8+2)*(a%8+2)} ÷ ${a%8+2} = ?`, answer: b%8+2, operation: '÷' };
+              else problem = { type: tgt, question: `${a} + ${b} = ?`, answer: a+b, operation: '+' };
+           } else {
+              problem = { type: 'basic', question: `${i+10} + 5 = ?`, answer: i+15, operation: '+' };
+           }
+        }
+        
+        // Prevent exact string duplicates in this set
+        if (!usedTypes.has(problem.question)) {
+           usedTypes.add(problem.question);
+           problems.push(problem);
+        }
+     }
+     i++;
+  }
+  
+  return problems;
+}

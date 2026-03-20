@@ -141,36 +141,34 @@ export default function Session({
   const progress = Math.round(((currentIndex + 1) / problems.length) * 100);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-orange-200 via-yellow-200 to-emerald-200 p-4 pt-8">
-      <div className="max-w-3xl mx-auto mb-8">
+    <div className="min-h-screen bg-slate-50 flex flex-col p-4 md:p-8 font-sans">
+      <div className="w-full max-w-4xl mx-auto mb-8">
         <div className="flex justify-between items-center mb-6">
-          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-2xl shadow-md">
-            <span className="text-4xl animate-bounce">⭐</span>
-            <span className="text-3xl font-black text-blue-700">{score} {tScore}</span>
+          <div className="flex items-center gap-3 bg-white px-6 py-3 rounded-[1.5rem] shadow-sm border border-slate-100">
+            <span className="text-3xl">🎯</span>
+            <span className="text-2xl font-black text-slate-800">{score} <span className="text-lg text-slate-400">{tScore}</span></span>
           </div>
           
-          <div className="text-center bg-white bg-opacity-50 px-6 py-2 rounded-2xl">
-            <div className="text-sm font-black text-gray-700">{tTitle}</div>
-            <div className="text-2xl font-black text-purple-700">{currentIndex + 1} / {problems.length}</div>
+          <div className="text-center bg-white px-8 py-3 rounded-[1.5rem] shadow-sm border border-slate-100">
+            <div className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">{tTitle}</div>
+            <div className="text-xl font-black text-slate-800 tracking-tight">{currentIndex + 1} <span className="text-slate-300 mx-1">/</span> {problems.length}</div>
           </div>
 
-          <button onClick={onExit} className="bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-2xl font-black shadow-lg transition transform active:scale-95">
+          <button onClick={onExit} className="bg-white hover:bg-red-50 text-red-500 px-6 py-3 rounded-[1.5rem] font-bold shadow-sm transition border border-slate-100 hover:border-red-200">
             {tExit}
           </button>
         </div>
 
-        <div className="w-full bg-white rounded-full h-8 shadow-inner overflow-hidden border-4 border-white mb-2">
-          <div className="h-full bg-gradient-to-r from-blue-500 via-emerald-400 to-yellow-400 rounded-full transition-all duration-500 ease-out relative" style={{ width: `${progress}%` }}>
-            <div className="absolute inset-0 bg-white opacity-20" style={{ backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(255,255,255,0.5) 10px, rgba(255,255,255,0.5) 20px)' }}></div>
-          </div>
+        <div className="w-full bg-slate-200 rounded-full h-3 overflow-hidden mb-2">
+          <div className="h-full bg-slate-800 rounded-full transition-all duration-500 ease-out" style={{ width: `${progress}%` }}></div>
         </div>
       </div>
 
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white rounded-3xl shadow-2xl p-8 md:p-12 min-h-[500px] flex flex-col justify-between border-b-8 border-r-8 border-gray-300 relative overflow-hidden">
+      <div className="w-full max-w-4xl mx-auto flex-1 flex flex-col">
+        <div className="bg-white rounded-[2rem] shadow-[0_8px_30px_rgb(0,0,0,0.04)] border border-slate-100 p-8 md:p-14 flex flex-col justify-between relative overflow-hidden flex-1">
           
           {reviewMode && (
-             <div className="absolute top-0 right-0 bg-red-500 text-white font-black px-6 py-2 rounded-bl-2xl shadow-lg">
+             <div className="absolute top-4 right-4 bg-slate-800 text-white font-bold px-4 py-2 rounded-xl text-sm shadow-sm">
                 오답 복습 모드 📝
              </div>
           )}

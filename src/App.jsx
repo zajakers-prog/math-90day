@@ -2,7 +2,8 @@ import React, { useState, useEffect } from 'react';
 import Lobby from './components/Lobby';
 import Session from './components/Session';
 import Result from './components/Result';
-import { generateProblems } from './utils/problemGenerator';
+import Diagnosis from './components/Diagnosis';
+import { generateProblems, generateSmartTen } from './utils/problemGenerator';
 
 export default function MathDaily90() {
   const [region, setRegion] = useState(null); 
@@ -15,6 +16,7 @@ export default function MathDaily90() {
   const [incorrectProblems, setIncorrectProblems] = useState([]);
   const [sessionComplete, setSessionComplete] = useState(false);
   const [reviewMode, setReviewMode] = useState(false);
+  const [retryCount, setRetryCount] = useState(0);
   
   const getStorageKey = () => `math_progress_${region}_${grade}`;
 
@@ -34,11 +36,13 @@ export default function MathDaily90() {
          setScore(saved.score || 0);
          setIncorrectProblems(saved.incorrectProblems || []);
          setSessionComplete(saved.sessionComplete || false);
+         setRetryCount(saved.retryCount || 0);
       } else {
          setCurrentIndex(0);
          setScore(0);
          setIncorrectProblems([]);
          setSessionComplete(false);
+         setRetryCount(0);
       }
       setReviewMode(false);
     }
@@ -47,10 +51,10 @@ export default function MathDaily90() {
   useEffect(() => {
     if (region && grade && problems.length > 0 && !reviewMode) {
       localStorage.setItem(getStorageKey(), JSON.stringify({
-        currentDay, currentIndex, score, incorrectProblems, sessionComplete
+        currentDay, currentIndex, score, incorrectProblems, sessionComplete, retryCount
       }));
     }
-  }, [currentDay, currentIndex, score, incorrectProblems, sessionComplete, region, grade, reviewMode]);
+  }, [currentDay, currentIndex, score, incorrectProblems, sessionComplete, retryCount, region, grade, reviewMode]);
 
   const handleNextDay = () => {
     const nextDay = Math.min(currentDay + 1, 90);
@@ -61,6 +65,7 @@ export default function MathDaily90() {
     setIncorrectProblems([]);
     setSessionComplete(false);
     setReviewMode(false);
+    setRetryCount(0);
   };
 
   const handleRetry = () => {
@@ -70,6 +75,17 @@ export default function MathDaily90() {
     setIncorrectProblems([]);
     setSessionComplete(false);
     setReviewMode(false);
+  };
+
+  const handleSmartRetry = () => {
+    if (retryCount >= 3) return;
+    setProblems(generateSmartTen(incorrectProblems, grade, region, currentDay));
+    setCurrentIndex(0);
+    setScore(0);
+    setIncorrectProblems([]);
+    setSessionComplete(false);
+    setReviewMode(false);
+    setRetryCount(prev => prev + 1);
   };
 
   const startReview = () => {
@@ -90,6 +106,17 @@ export default function MathDaily90() {
   }
 
   if (sessionComplete) {
+    if (currentDay === 90 && !reviewMode) {
+      return (
+        <Diagnosis 
+          region={region} grade={grade} 
+          score={score} totalProblems={problems.length}
+          incorrectProblems={incorrectProblems}
+          onExit={handleExit}
+        />
+      );
+    }
+
     return (
       <Result 
         region={region} grade={grade} currentDay={currentDay}
@@ -98,6 +125,7 @@ export default function MathDaily90() {
         reviewMode={reviewMode} setReviewMode={setReviewMode}
         setSessionComplete={setSessionComplete}
         onRetry={handleRetry} onNextDay={handleNextDay} onExit={handleExit} onStartReview={startReview}
+        retryCount={retryCount} onSmartRetry={handleSmartRetry}
       />
     );
   }
