@@ -277,7 +277,7 @@ export function generateProblems(region, grade, day) {
       const idx = randInt(100 + rAttempts, seed, 0, bank.length - 1);
       if (!rSet.has(idx)) {
          rSet.add(idx);
-         problems.push({ ...bank[idx], type: 'reasoning' });
+         problems.push({ ...bank[idx](seed + rAttempts), type: 'reasoning' });
       }
       rAttempts++;
     }
@@ -311,7 +311,7 @@ export function generateSmartTen(incorrectProblems, grade, region, day) {
         const idx = randInt(100 + rAttempts, seed, 0, bank.length - 1);
         if (!usedTypes.has(idx)) {
            usedTypes.add(idx);
-           problems.push({ ...bank[idx], type: 'reasoning' });
+           problems.push({ ...bank[idx](seed + rAttempts), type: 'reasoning' });
         }
       } else {
         problems.push({ type: 'basic', question: `Challenge ${rAttempts} + 99 = ?`, answer: rAttempts + 99, operation: '+' });
@@ -343,7 +343,7 @@ export function generateSmartTen(incorrectProblems, grade, region, day) {
         let problem = null;
         if (tgt === 'reasoning_bank' && bank.length > 0) {
            const idx = randInt(500 + problems.length + i, seed, 0, bank.length - 1);
-           problem = { ...bank[idx], type: 'reasoning' };
+           problem = { ...bank[idx](seed + problems.length + i), type: 'reasoning' };
         } else {
            // Find a sample from the incorrect problems to reuse its scale
            const sample = incorrectProblems.find(p => p.type === tgt);

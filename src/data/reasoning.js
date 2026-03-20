@@ -1,96 +1,91 @@
+import { seededRandom } from '../utils/problemGenerator.js';
+
+function randInt(seed, min, max) {
+  return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
+}
+
 export const REASONING_BANK = {
   KR: {
     '1': [
-      { question: '[EBS 기초] 1, 2, 3, 4, __는 무엇인가요?', answer: 5, hint: '1씩 커집니다!' },
-      { question: '[교과서 응용] 네모 안에 알맞은 수는? 4 + □ = 9', answer: 5, hint: '9에서 4를 빼보세요!' },
-      { question: '[창의수학] 10 - 3 = 7, 10 - 4 = 6, 10 - 5 = ?', answer: 5, hint: '규칙을 찾아보세요!' },
-      { question: '[올림피아드 기초] 첫 번째: 1개, 두 번째: 3개, 세 번째: 5개, 네 번째: ?개', answer: 7, hint: '2개씩 늘어납니다!' },
-      { question: '[HME 대비] ■ + ■ = 10일 때, ■는 무엇인가요?', answer: 5, hint: '같은 수 두 번 더하기!' },
+      (s) => { const st = randInt(s, 1, 5); const sp = randInt(s+1, 1, 3); return { question: `[EBS 기초] ${st}, ${st+sp}, ${st+sp*2}, ${st+sp*3}, __는 무엇인가요?`, answer: st+sp*4, hint: `${sp}씩 커집니다!` }; },
+      (s) => { const a = randInt(s, 2, 8); const ans = randInt(s+1, a+1, 15); return { question: `[교과서 응용] 네모 안에 알맞은 수는? ${a} + □ = ${ans}`, answer: ans-a, hint: `${ans}에서 ${a}를 빼보세요!` }; },
+      (s) => { const t = randInt(s, 10, 15); const sub = randInt(s+1, 2, 5); return { question: `[창의수학] ${t} - ${sub} = ${t-sub}, ${t} - ${sub+1} = ${t-sub-1}, ${t} - ${sub+2} = ?`, answer: t-sub-2, hint: '규칙을 찾아보세요!' }; },
+      (s) => { const start = randInt(s, 1, 3); const step = randInt(s+1, 2, 4); return { question: `[올림피아드 기초] 첫 번째: ${start}개, 두 번째: ${start+step}개, 세 번째: ${start+step*2}개, 네 번째: ?개`, answer: start+step*3, hint: `${step}개씩 늘어납니다!` }; }
     ],
     '2': [
-      { question: '[성대경시 기초] 2, 4, 6, 8, __는 무엇인가요?', answer: 10, hint: '2씩 커집니다!' },
-      { question: '[교과서 심화] 10 = 5 + 5 = 7 + 3 = 6 + 4 = 2 + ?', answer: 8, hint: '10을 만드는 수를 찾으세요!' },
-      { question: '[EBS 응용] ■ + 15 = 40일 때, ■는 무엇인가요?', answer: 25, hint: '40에서 15를 빼보세요!' },
-      { question: '[올림피아드] 규칙 찾기: 50, 45, 40, 35, __', answer: 30, hint: '5씩 작아집니다!' },
+      (s) => { const st = randInt(s, 2, 10); const sp = randInt(s+1, 2, 5); return { question: `[성대경시 기초] ${st}, ${st+sp}, ${st+sp*2}, ${st+sp*3}, __는 무엇인가요?`, answer: st+sp*4, hint: `${sp}씩 커집니다!` }; },
+      (s) => { const target = randInt(s, 10, 20); const n1 = randInt(s+1, 2, target-2); const n2 = randInt(s+2, 2, target-2); const n3 = randInt(s+3, 2, target-2); return { question: `[교과서 심화] ${target} = ${n1} + ${target-n1} = ${n2} + ${target-n2} = ${n3} + ?`, answer: target-n3, hint: `${target}을 만드는 수를 찾으세요!` }; },
+      (s) => { const ans = randInt(s, 15, 40); const sub = randInt(s+1, 10, ans-5); return { question: `[EBS 응용] ■ + ${sub} = ${ans}일 때, ■는 무엇인가요?`, answer: ans-sub, hint: `${ans}에서 ${sub}를 빼보세요!` }; },
+      (s) => { const st = randInt(s, 40, 90); const sp = randInt(s+1, 2, 6); return { question: `[올림피아드] 규칙 찾기: ${st}, ${st-sp}, ${st-sp*2}, ${st-sp*3}, __`, answer: st-sp*4, hint: `${sp}씩 작아집니다!` }; }
     ],
     '3': [
-      { question: '3, 6, 9, 12, __는 무엇인가요?', answer: 15, hint: '3씩 커지는 규칙을 찾으세요!' },
-      { question: '□ × 4 = 20일 때, □는 무엇인가요?', answer: 5, hint: '곱셈의 반대로 생각해보세요!' },
-      { question: '□ ÷ 3 = 6일 때, □는 무엇인가요?', answer: 18, hint: '나눗셈의 반대로 생각하세요!' },
-      { question: '3 × ■ = 24일 때, ■는 무엇인가요?', answer: 8, hint: '구구단 3단을 외워보세요!' },
-      { question: '100, 90, 80, 70, __는?', answer: 60, hint: '10씩 작아집니다!' },
+      (s) => { const st = randInt(s, 3, 12); const sp = randInt(s+1, 3, 7); return { question: `${st}, ${st+sp}, ${st+sp*2}, ${st+sp*3}, __는 무엇인가요?`, answer: st+sp*4, hint: `${sp}씩 커지는 규칙을 찾으세요!` }; },
+      (s) => { const ans = randInt(s, 3, 9); const mul = randInt(s+1, 4, 9); return { question: `□ × ${mul} = ${ans*mul}일 때, □는 무엇인가요?`, answer: ans, hint: '곱셈의 반대로 생각해보세요!' }; },
+      (s) => { const ans = randInt(s, 11, 25); const div = randInt(s+1, 3, 7); return { question: `□ ÷ ${div} = ${ans}일 때, □는 무엇인가요?`, answer: ans*div, hint: '나눗셈의 반대로 생각하세요!' }; },
+      (s) => { const start = randInt(s, 100, 300); const step = randInt(s+1, 10, 30); return { question: `${start}, ${start-step}, ${start-step*2}, ${start-step*3}, __는?`, answer: start-step*4, hint: `${step}씩 작아집니다!` }; }
     ],
     '4': [
-      { question: '2, 4, 8, 16, __는 무엇인가요?', answer: 32, hint: '2배씩 커집니다!' },
-      { question: '1, 4, 9, 16, __는 무엇인가요?', answer: 25, hint: '1², 2², 3², 4², ...의 패턴입니다!' },
-      { question: '10, 20, 30, 40, __는 무엇인가요?', answer: 50, hint: '10씩 커집니다!' },
-      { question: '1/2 = ?/4 요 안에 들어갈 숫자는?', answer: 2, hint: '분모와 분자에 2를 곱해보세요.' },
-      { question: '0.1, 0.2, 0.3, __는 무엇인가요?', answer: 0.4, hint: '0.1씩 커집니다!', isTextAnswer: true },
+      (s) => { const start = randInt(s, 2, 5); const mul = randInt(s+1, 2, 3); return { question: `${start}, ${start*mul}, ${start*mul*mul}, ${start*Math.pow(mul,3)}, __는 무엇인가요?`, answer: start*Math.pow(mul,4), hint: `${mul}배씩 커집니다!` }; },
+      (s) => { const n = randInt(s, 1, 4); return { question: `${n*n}, ${(n+1)*(n+1)}, ${(n+2)*(n+2)}, ${(n+3)*(n+3)}, __는 무엇인가요?`, answer: (n+4)*(n+4), hint: '어떤 수를 두 번 곱한 패턴입니다!' }; },
+      (s) => { const num = randInt(s, 1, 5); const den = randInt(s+1, 2, 6); const mult = randInt(s+2, 2, 5); return { question: `${num}/${den} 과 크기가 같은 분수 ?/${den*mult} 의 ?는?`, answer: num*mult, hint: '분모와 분자에 똑같이 곱하세요.' }; },
+      (s) => { const dec = randInt(s, 1, 5); const step = randInt(s+1, 1, 3); return { question: `0.${dec}, 0.${dec+step}, 0.${dec+step*2}, __는 무엇인가요?`, answer: (dec+step*3)/10, hint: `0.${step}씩 커집니다!`, isTextAnswer: true }; }
     ],
     '5': [
-      { question: '[시도경시대회] 1, 3, 6, 10, __ (더해지는 수가 커져요)', answer: 15, hint: '+2, +3, +4, ... 다음은?' },
-      { question: '[EBS 교과 심화] 2/4 = 1/2 라고 할때, 6/8 = ?/4 의 ?는?', answer: 3, hint: '약분해보세요!' },
-      { question: '[최상위 수학] □ × 0.5 = 10 일 때, □는?', answer: 20, hint: '반으로 나누어 10이 되는 수는?' },
-      { question: '[올림피아드] 1, 1, 2, 3, 5, 8, __ (피보나치 수열)', answer: 13, hint: '앞의 두 수를 더해보세요.' },
-      { question: '[거꾸로 풀기 기출] 어떤 수의 3배에서 5를 빼면 16입니다. 어떤 수는?', answer: 7, hint: '거꾸로 16에 5를 더하고 3으로 나누세요.' },
+      (s) => { const st = randInt(s, 1, 5); const sp = randInt(s+1, 2, 4); return { question: `[시도경시대회] ${st}, ${st+sp}, ${st+sp+(sp+1)}, ${st+sp+(sp+1)+(sp+2)}, __ (더해지는 수가 커져요)`, answer: st+sp+(sp+1)+(sp+2)+(sp+3), hint: '갈수록 더 큰 수를 더해보세요.' }; },
+      (s) => { const half = randInt(s, 2, 6) * 2; return { question: `[최상위 수학] □ × 0.5 = ${half} 일 때, □는?`, answer: half*2, hint: '반으로 나누어 값이 되는 수는?' }; },
+      (s) => { const start = randInt(s, 2, 4); return { question: `[올림피아드] ${start}, ${start}, ${start*2}, ${start*3}, ${start*5}, __ (두 수의 합)`, answer: start*8, hint: '앞의 두 수를 더해보세요.' }; },
+      (s) => { const ans = randInt(s, 5, 12); const mul = randInt(s+1, 2, 4); const sub = randInt(s+2, 3, 10); return { question: `[거꾸로 풀기 기출] 어떤 수의 ${mul}배에서 ${sub}를 빼면 ${ans*mul-sub}입니다. 어떤 수는?`, answer: ans, hint: `거꾸로 ${sub}를 더하고 ${mul}로 나누세요.` }; }
     ],
     '6': [
-      { question: '[EBS 비율 응용] 20%가 40명이라면, 전체 100%는 몇 명인가요?', answer: 200, hint: '40에 5를 곱해보세요.' },
-      { question: '[최상위 수학] 3 : 4 = 15 : x 일 때, x는?', answer: 20, hint: '전항에 5를 곱했으니 후항에도 5를 곱하세요.' },
-      { question: '[올림피아드 도형] 원주율을 3으로 계산할 때, 지름이 10인 원의 둘레는?', answer: 30, hint: '원주 = 지름 × 원주율' },
-      { question: '[KMO 기초] 3x - 5 = 10, x는 무엇일까요?', answer: 5, hint: '양변에 5를 더하고 3으로 나누세요.' },
-      { question: '[KMO 대수] x + 2x = 18, x는?', answer: 6, hint: '3x = 18 입니다.' },
+      (s) => { const pct = randInt(s, 2, 5)*10; const val = randInt(s+1, 20, 50); return { question: `[EBS 비율 응용] ${pct}%가 ${val}명이라면, 전체 100%는 몇 명인가요?`, answer: (val * 100)/pct, hint: '비율만큼 곱해보세요.' }; },
+      (s) => { const a = randInt(s, 2, 5); const b = randInt(s+1, 3, 7); const mult = randInt(s+2, 3, 6); return { question: `[최상위 수학] ${a} : ${b} = ${a*mult} : x 일 때, x는?`, answer: b*mult, hint: `전항에 곱을 확인하세요.` }; },
+      (s) => { const d = randInt(s, 4, 12); return { question: `[올림피아드 도형] 원주율을 3으로 계산할 때, 지름이 ${d}인 원의 둘레는?`, answer: d*3, hint: '원주 = 지름 × 원주율' }; },
+      (s) => { const x = randInt(s, 4, 10); const mul = randInt(s+1, 2, 5); const sub = randInt(s+2, 2, 8); return { question: `[KMO 대수 기초] ${mul}x - ${sub} = ${x*mul-sub}, x는 무엇일까요?`, answer: x, hint: '양변을 이항해보세요.' }; },
+      (s) => { const x = randInt(s, 2, 8); const add = randInt(s+1, 2, 4); return { question: `[KMO 방정식] x + ${add}x = ${x*(add+1)}, x는?`, answer: x, hint: `${add+1}x 입니다.` }; }
     ]
   },
   US: {
     'K': [
-      { question: '1, 2, 3, __?', answer: 4, hint: 'Count up!' },
-      { question: 'What is 1 + 1?', answer: 2, hint: 'Add them together.' },
-      { question: 'Count: 5, 4, 3, __?', answer: 2, hint: 'Count backwards.' },
-      { question: 'Two cats and one dog. How many animals?', answer: 3, hint: 'Count them all.' },
-      { question: '10, 20, __?', answer: 30, hint: 'Count by 10s!' },
+      (s) => { const st = randInt(s, 1, 5); return { question: `${st}, ${st+1}, ${st+2}, __?`, answer: st+3, hint: 'Count up!' }; },
+      (s) => { const a = randInt(s, 1, 4); const b = randInt(s+1, 1, 4); return { question: `What is ${a} + ${b}?`, answer: a+b, hint: 'Add them together.' }; },
+      (s) => { const st = randInt(s, 5, 10); return { question: `Count: ${st}, ${st-1}, ${st-2}, __?`, answer: st-3, hint: 'Count backwards.' }; },
+      (s) => { const a = randInt(s, 2, 5); const b = randInt(s+1, 1, 3); return { question: `${a} cats and ${b} dogs. How many animals?`, answer: a+b, hint: 'Count them all.' }; }
     ],
     '1': [
-      { question: '1, 2, 3, 4, What comes next?', answer: 5, hint: 'It grows by 1!' },
-      { question: '4 + ? = 10', answer: 6, hint: 'Count up from 4 to 10.' },
-      { question: '10 - 3 = 7, 10 - 4 = 6, 10 - 5 = ?', answer: 5, hint: 'Find the pattern!' },
-      { question: 'Mary has 3 apples. She gets 2 more. How many?', answer: 5, hint: 'Add 3 and 2.' },
-      { question: '? + ? = 8 (The numbers are the same)', answer: 4, hint: 'Double a number to get 8.' },
+      (s) => { const st = randInt(s, 5, 15); return { question: `${st}, ${st+1}, ${st+2}, ${st+3}, What comes next?`, answer: st+4, hint: 'It grows by 1!' }; },
+      (s) => { const ans = randInt(s, 5, 10); const p = randInt(s+1, 1, ans-1); return { question: `${p} + ? = ${ans}`, answer: ans-p, hint: `Count up from ${p} to ${ans}.` }; },
+      (s) => { const t = randInt(s, 10, 15); const sub = randInt(s+1, 2, 4); return { question: `${t} - ${sub} = ${t-sub}, ${t} - ${sub+1} = ${t-sub-1}, ${t} - ${sub+2} = ?`, answer: t-sub-2, hint: 'Find the pattern!' }; },
+      (s) => { const a = randInt(s, 3, 8); const b = randInt(s+1, 2, 6); return { question: `Mary has ${a} apples. Gets ${b} more. How many?`, answer: a+b, hint: `Add ${a} and ${b}.` }; }
     ],
     '2': [
-      { question: '2, 4, 6, 8, What comes next?', answer: 10, hint: 'Count by 2s!' },
-      { question: '10 = 5 + 5 = 7 + 3 = 6 + 4 = 2 + ?', answer: 8, hint: 'Friends of 10!' },
-      { question: '? + 15 = 40. What is ?', answer: 25, hint: 'Subtract 15 from 40.' },
-      { question: '50, 45, 40, 35, Next is?', answer: 30, hint: 'Count back by 5s.' },
-      { question: 'John has 10 cents. He buys a candy for 4 cents. Left?', answer: 6, hint: 'Subtract 4 from 10.' },
+      (s) => { const st = randInt(s, 2, 10); const sp = randInt(s+1, 2, 4); return { question: `${st}, ${st+sp}, ${st+sp*2}, ${st+sp*3}, What comes next?`, answer: st+sp*4, hint: `Count by ${sp}s!` }; },
+      (s) => { const target = randInt(s, 10, 20); const n1 = randInt(s+1, 2, target-2); const n2 = randInt(s+2, 2, target-2); const n3 = randInt(s+3, 2, target-2); return { question: `${target} = ${n1} + ${target-n1} = ${n2} + ${target-n2} = ${n3} + ?`, answer: target-n3, hint: `Friends of ${target}!` }; },
+      (s) => { const ans = randInt(s, 20, 50); const sub = randInt(s+1, 10, ans-5); return { question: `? + ${sub} = ${ans}. What is ?`, answer: ans-sub, hint: `Subtract ${sub} from ${ans}.` }; },
+      (s) => { const st = randInt(s, 40, 60); const sp = randInt(s+1, 3, 6); return { question: `${st}, ${st-sp}, ${st-sp*2}, ${st-sp*3}, Next is?`, answer: st-sp*4, hint: `Count back by ${sp}s.` }; }
     ],
     '3': [
-      { question: '3, 6, 9, 12, What is next?', answer: 15, hint: 'Count by 3s!' },
-      { question: '? × 4 = 20. Find ?', answer: 5, hint: 'Think of 4 times what equals 20.' },
-      { question: '? ÷ 3 = 6. Find ?', answer: 18, hint: 'Inverse is multiplication!' },
-      { question: 'A square has side of 3 inches. Perimeter?', answer: 12, hint: 'Add 3 four times.' },
-      { question: '100, 90, 80, 70, __?', answer: 60, hint: 'Minus 10.' },
+      (s) => { const st = randInt(s, 6, 18); const sp = randInt(s+1, 3, 6); return { question: `${st}, ${st+sp}, ${st+sp*2}, ${st+sp*3}, What is next?`, answer: st+sp*4, hint: `Count by ${sp}s!` }; },
+      (s) => { const ans = randInt(s, 4, 9); const mul = randInt(s+1, 3, 8); return { question: `? × ${mul} = ${ans*mul}. Find ?`, answer: ans, hint: `Think of ${mul} times what equals ${ans*mul}.` }; },
+      (s) => { const ans = randInt(s, 12, 24); const div = randInt(s+1, 3, 6); return { question: `? ÷ ${div} = ${ans}. Find ?`, answer: ans*div, hint: 'Inverse is multiplication!' }; },
+      (s) => { const side = randInt(s, 3, 10); return { question: `A square has side of ${side} inches. Perimeter?`, answer: side*4, hint: 'Add all four sides.' }; }
     ],
     '4': [
-      { question: '2, 4, 8, 16, What is next?', answer: 32, hint: 'Multiply by 2!' },
-      { question: '1, 4, 9, 16, What is next?', answer: 25, hint: '1x1, 2x2, 3x3, 4x4, ...' },
-      { question: '1/2 is equal to ?/4. Find ?', answer: 2, hint: 'Equivalent fractions.' },
-      { question: '0.1, 0.2, 0.3, Next is?', answer: 0.4, hint: 'Add 0.1!', isTextAnswer: true },
-      { question: 'Area of a rectangle: length 5, width 4?', answer: 20, hint: 'Length times width.' },
+      (s) => { const st = randInt(s, 2, 4); const mul = randInt(s+1, 2, 3); return { question: `${st}, ${st*mul}, ${st*mul*mul}, ${st*Math.pow(mul,3)}, What is next?`, answer: st*Math.pow(mul,4), hint: `Multiply by ${mul}!` }; },
+      (s) => { const n = randInt(s, 2, 5); return { question: `${n*n}, ${(n+1)*(n+1)}, ${(n+2)*(n+2)}, ${(n+3)*(n+3)}, What is next?`, answer: (n+4)*(n+4), hint: 'Square numbers.' }; },
+      (s) => { const n = randInt(s, 1, 4); const d = randInt(s+1, 2, 5); const m = randInt(s+2, 2, 4); return { question: `${n}/${d} is equal to ?/${d*m}. Find ?`, answer: n*m, hint: 'Equivalent fractions.' }; },
+      (s) => { const l = randInt(s, 5, 12); const w = randInt(s+1, 4, l-1); return { question: `Area of a rectangle: length ${l}, width ${w}?`, answer: l*w, hint: 'Length times width.' }; }
     ],
     '5': [
-      { question: '1, 3, 6, 10, What is next? (Adds +2, +3, +4...)', answer: 15, hint: 'Next add +5.' },
-      { question: 'Reduce 6/8 to simplest form. Numerator?', answer: 3, hint: 'Divide by 2.' },
-      { question: '? × 0.5 = 10. Find ?', answer: 20, hint: 'What number cut in half is 10?' },
-      { question: 'Volume of cube with side 3? (3x3x3)', answer: 27, hint: 'Multiply 3 by itself 3 times.' },
-      { question: 'A shirt is $20. 10% discount. Final price?', answer: 18, hint: '10% of 20 is 2. Then subtract.' },
+      (s) => { const st = randInt(s, 2, 6); const sp = randInt(s+1, 2, 4); return { question: `${st}, ${st+sp}, ${st+sp+(sp+1)}, ${st+sp+(sp+1)+(sp+2)}, What is next?`, answer: st+sp+(sp+1)+(sp+2)+(sp+3), hint: 'Adds a growing number.' }; },
+      (s) => { const n = randInt(s, 2, 5); const d = n + randInt(s+1, 1, 4); const m = randInt(s+2, 2, 4); return { question: `Reduce ${n*m}/${d*m} to simplest form. Numerator?`, answer: n, hint: `Divide by ${m}.` }; },
+      (s) => { const ans = randInt(s, 12, 30); return { question: `? × 0.5 = ${ans}. Find ?`, answer: ans*2, hint: `What number cut in half is ${ans}?` }; },
+      (s) => { const pr = randInt(s, 20, 60); const dc = randInt(s+1, 1, 3)*10; return { question: `A shirt is $${pr}. ${dc}% discount. Final price?`, answer: pr - (pr*dc)/100, hint: 'Subtract the discount.' }; }
     ],
     '6': [
-      { question: 'If 20% is 40 people, what is 100%?', answer: 200, hint: 'Multiply 40 by 5.' },
-      { question: '3 : 4 = 15 : x. What is x?', answer: 20, hint: '3 times 5 is 15. So 4 times 5 is?' },
-      { question: 'If Pi is 3, circumference of circle with diameter 10?', answer: 30, hint: 'C = Pi × d' },
-      { question: '3x - 5 = 10, what is x?', answer: 5, hint: 'Add 5 to both sides, then divide by 3.' },
-      { question: 'Mean of 2, 4, 6, 8?', answer: 5, hint: 'Add them all and divide by 4.' },
+      (s) => { const pct = randInt(s, 2, 4)*10; const val = randInt(s+1, 20, 50); return { question: `If ${pct}% is ${val} people, what is 100%?`, answer: (val * 100)/pct, hint: 'Multiply ratio.' }; },
+      (s) => { const a = randInt(s, 2, 5); const b = randInt(s+1, 3, 7); const m = randInt(s+2, 2, 6); return { question: `${a} : ${b} = ${a*m} : x. What is x?`, answer: b*m, hint: 'Match the proportion.' }; },
+      (s) => { const x = randInt(s, 4, 12); const mul = randInt(s+1, 2, 4); const sub = randInt(s+2, 2, 8); return { question: `${mul}x - ${sub} = ${x*mul-sub}, what is x?`, answer: x, hint: 'Isolate x.' }; },
+      (s) => { const n1=randInt(s, 2, 6); const n2=n1+2; const n3=n2+2; const n4=n3+2; return { question: `Mean of ${n1}, ${n2}, ${n3}, ${n4}?`, answer: (n1+n2+n3+n4)/4, hint: 'Add all and divide by 4.' }; }
     ]
   }
 };
