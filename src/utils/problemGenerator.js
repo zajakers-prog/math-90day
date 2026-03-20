@@ -72,6 +72,16 @@ export function generateProblems(region, grade, day) {
     }
     // ----------------------------------------
     
+    // --- Intra-Week Progression (Numeric Range Adjustments) ---
+    const dayOfWeek = ((day - 1) % 5) + 1; // 1 to 5
+    if (dayOfWeek === 1) { // Introduction
+      max = Math.max(min, min + Math.floor((max - min) * 0.6));
+    } else if (dayOfWeek === 2) { // Fluency Drill
+      min = Math.min(max, min + Math.floor((max - min) * 0.4));
+    } else if (dayOfWeek === 5) { // Weekly Test
+      max = Math.ceil(max * 1.2);
+    }
+    
     let problem = null;
     let attempts = 0;
     
@@ -254,6 +264,20 @@ export function generateProblems(region, grade, day) {
       }
     } // end of massive if-else branch
     
+      // --- Intra-Week Progression (Format Shifting) ---
+      if (problem && problem.type === 'basic' && problem.question && problem.operation && !problem.isTextAnswer && !problem.question.includes('? /')) {
+         const shiftProb = seedRandom(i, s + 999);
+         if (dayOfWeek === 3 && shiftProb > 0.6) {
+             problem = convertToEquation(problem, s);
+         } else if (dayOfWeek === 4 && shiftProb > 0.5) {
+             problem = convertToWordProblem(problem, s, region);
+         } else if (dayOfWeek === 5 && shiftProb > 0.6) {
+             const mode = randInt(i, s+777, 1, 2);
+             if (mode === 1) problem = convertToEquation(problem, s);
+             else problem = convertToWordProblem(problem, s, region);
+         }
+      }
+      
       if (!usedQuestions.has(problem.question)) {
         usedQuestions.add(problem.question);
         break; // unique problem found
@@ -375,4 +399,97 @@ export function generateSmartTen(incorrectProblems, grade, region, day) {
   }
   
   return problems;
+}
+
+// -------------------------------------------------------------------------
+// Intra-Week Format Mutators
+// -------------------------------------------------------------------------
+
+function convertToEquation(prob, seed) {
+   const match = prob.question.match(/^([0-9]+)\s*([\+\-\×\÷])\s*([0-9]+)\s*=\s*\?$/);
+   if (!match) return prob;
+   
+   const p1 = parseInt(match[1]);
+   const op = match[2];
+   const p2 = parseInt(match[3]);
+   const ans = prob.answer;
+   
+   const hideFirst = seedRandom(seed, 10) > 0.5;
+   if (hideFirst) {
+      return { ...prob, question: `□ ${op} ${p2} = ${ans}`, answer: p1, type: 'equation', hint: '식을 만족하는 수를 구하세요' };
+   } else {
+      return { ...prob, question: `${p1} ${op} □ = ${ans}`, answer: p2, type: 'equation', hint: '식을 만족하는 수를 구하세요' };
+   }
+}
+
+const WORD_TEMPLATES = {
+  KR: {
+    '+': [
+      "{N1}가 구슬을 {P1}개 가지고 있습니다. {N2}가 {P2}개를 더 주었습니다. 구슬은 모두 몇 개입니까?",
+      "책꽂이에 책이 {P1}권 있습니다. 오늘 {P2}권을 새로 샀습니다. 책은 모두 몇 권입니까?"
+    ],
+    '-': [
+      "{N1}가 사과를 {P1}개 가지고 있었습니다. 그 중 {P2}개를 친구에게 주었습니다. 남은 사과는 몇 개입니까?",
+      "주차장에 차가 {P1}대 있었습니다. {P2}대가 빠져나갔습니다. 남은 차는 몇 대입니까?"
+    ],
+    '×': [
+       "한 상자에 과자가 {P1}개씩 들어있습니다. 똑같은 상자가 {P2}개 있다면, 과자는 모두 몇 개입니까?",
+       "하루에 {P1}쪽씩 책을 읽습니다. {P2}일 동안 읽으면 총 몇 쪽을 읽게 될까요?"
+    ],
+    '÷': [
+       "사탕 {P1}개를 {P2}명에게 똑같이 나누어주려고 합니다. 한 사람당 몇 개씩 받을 수 있나요?",
+       "길이가 {P1}cm인 끈을 {P2}cm씩 똑같이 자르려고 합니다. 몇 도막이 될까요?"
+    ]
+  },
+  US: {
+    '+': [
+      "{N1} has {P1} apples. {N2} gives them {P2} more. How many total?",
+      "There are {P1} books on the shelf. We add {P2} more. How many now?"
+    ],
+    '-': [
+      "{N1} picked {P1} flowers, but dropped {P2}. How many are left?",
+      "A store had {P1} toys. They sold {P2}. How many toys are left?"
+    ],
+    '×': [
+      "There are {P1} boxes, and each box has {P2} donuts. How many donuts total?",
+      "If a spider has {P1} legs, how many legs do {P2} spiders have?"
+    ],
+    '÷': [
+      "{N1} has {P1} cookies to share equally among {P2} friends. How many cookies per friend?",
+      "{P1} pencils are packed into boxes of {P2}. How many boxes are needed?"
+    ]
+  }
+};
+
+const NAMES_KR = ['철수', '영희', '민수', '지수', '민지'];
+const NAMES_US = ['Tom', 'Emma', 'Alex', 'Sophia', 'Liam'];
+
+function convertToWordProblem(prob, seed, region) {
+   const match = prob.question.match(/^([0-9]+)\s*([\+\-\×\÷])\s*([0-9]+)\s*=\s*\?$/);
+   if (!match) return prob; 
+   
+   const p1 = parseInt(match[1]);
+   const op = match[2];
+   const p2 = parseInt(match[3]);
+   
+   const templates = WORD_TEMPLATES[region]?.[op];
+   if (!templates || templates.length === 0) return prob;
+   
+   const template = templates[randInt(1, seed, 0, templates.length - 1)];
+   const names = region === 'KR' ? NAMES_KR : NAMES_US;
+   const n1 = names[randInt(2, seed, 0, names.length - 1)];
+   const n2 = names[(randInt(3, seed, 0, names.length - 1) + 1) % names.length];
+   
+   const big = Math.max(p1, p2);
+   const small = Math.min(p1, p2);
+   
+   let question = template.replace('{N1}', n1).replace('{N2}', n2);
+       
+   if (op === '-' || op === '÷') {
+       question = question.replace('{P1}', big).replace('{P2}', small);
+   } else {
+       question = question.replace('{P1}', p1).replace('{P2}', p2);
+   }
+
+   return { ...prob, question, type: 'word', isTextAnswer: false, hint: region === 'US' ? 'Read carefully!' : '문장제 응용' };
 }
