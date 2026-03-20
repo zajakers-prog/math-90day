@@ -85,8 +85,18 @@ export default function Session({
 
     if (isCorrect) {
       if (!reviewMode) setScore((prev) => prev + 1);
-      const msgsKR = ['🎉 정답!', '⭐ 완벽해요!', '🌟 천재!', '💪 대단해요!', '✨ 최고!', '🔥 훌륭해요!'];
-      const msgsUS = ['🎉 Correct!', '⭐ Perfect!', '🌟 Genius!', '💪 Great!', '✨ Awesome!', '🔥 Excellent!'];
+      let msgsKR = ['🎉 정답!', '⭐ 완벽해요!', '🌟 천재!', '💪 대단해요!', '✨ 최고!', '🔥 훌륭해요!'];
+      let msgsUS = ['🎉 Correct!', '⭐ Perfect!', '🌟 Genius!', '💪 Great!', '✨ Awesome!', '🔥 Excellent!'];
+      
+      // Anti-dropout dynamic morale boosting for higher tiers
+      if (currentIndex >= 26) {
+        msgsKR = ['🔥 말도 안 돼! 이 어려운 걸 풀다니!', '👑 수학 올림피아드 나가도 되겠어요!', '🤯 천재적인 논리력이네요!', '🌟 최고 난이도 정답!'];
+        msgsUS = ['🔥 Unbelievable! You solved it!', '👑 Ready for Math Olympiad!', '🤯 Pure Genius Logic!', '🌟 Ultimate Challenge Solved!'];
+      } else if (currentIndex >= 20) {
+        msgsKR = ['💪 까다로운 응용문제도 거뜬히 푸네요!', '✨ 원리를 완벽하게 이해했어요!', '🌟 대단한 집중력이에요!'];
+        msgsUS = ['💪 Mastering the applications!', '✨ Perfect understanding!', '🌟 Amazing focus!'];
+      }
+
       const msgs = isUS ? msgsUS : msgsKR;
       const seed = getSeedForDay(region, grade, currentDay);
       setFeedback(msgs[Math.floor(seedRandom(currentIndex, seed) * msgs.length)]);

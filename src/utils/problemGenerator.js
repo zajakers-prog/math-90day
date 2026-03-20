@@ -37,15 +37,41 @@ export function generateProblems(region, grade, day) {
   const curriculum = curriculumMap[gradeKey][week - 1];
   
   if (!curriculum) return [];
-  const { type, range } = curriculum;
-  
-  const min = range ? range[0] : 1;
-  const max = range ? range[1] : 9;
+  const baseType = curriculum.type;
+  const baseMin = curriculum.range ? curriculum.range[0] : 1;
+  const baseMax = curriculum.range ? curriculum.range[1] : 9;
   
   const seed = getSeedForDay(region, gradeKey, day);
   const usedQuestions = new Set();
 
-  for (let i = 0; i < 27; i++) {
+  // Scaffolding: Tier 1 (Warm-up), Tier 2 (Core), Tier 3 (Application)
+  for (let i = 0; i < 26; i++) {
+    let type = baseType;
+    let min = baseMin;
+    let max = baseMax;
+    
+    // --- 4-Tier Scaffolding Architecture ---
+    if (i < 10) { 
+      // Tier 1: Warm-up 
+      const prevWeek = Math.max(1, week - 1);
+      const prevCurr = curriculumMap[gradeKey][prevWeek - 1] || curriculumMap[gradeKey][0];
+      if (prevCurr) {
+        type = prevCurr.type || baseType;
+        min = prevCurr.range ? prevCurr.range[0] : 1;
+        max = prevCurr.range ? Math.max(min + 1, Math.floor(prevCurr.range[1] * 0.7)) : 9;
+      }
+    } else if (i < 20) { 
+      // Tier 2: Core (Current week, unchanged)
+    } else { 
+      // Tier 3: Application (Increased complexity)
+      max = Math.ceil(baseMax * 1.5) + 2;
+      if (region === 'KR' && ['basic', 'add', 'sub', 'mul', 'div'].some(t => type.includes(t))) {
+         if (i >= 24) type += '-kr-ebs-wrong-calc';
+         else type += '-word-mix';
+      }
+    }
+    // ----------------------------------------
+    
     let problem = null;
     let attempts = 0;
     
@@ -242,15 +268,24 @@ export function generateProblems(region, grade, day) {
     problems.push(problem);
   }
 
-  // Insert Reasoning questions
+  // Tier 4: Challenge / Olympiad Reasoning (4 questions strictly at the end)
   const bank = REASONING_BANK[region][gradeKey];
-  if (bank && bank.length >= 3) {
-    const r1 = bank[randInt(1, seed, 0, bank.length-1)];
-    const r2 = bank[randInt(2, seed, 0, bank.length-1)];
-    const r3 = bank[randInt(3, seed, 0, bank.length-1)];
-    problems.splice(29, 0, { ...r3, type: 'reasoning' });
-    problems.splice(19, 0, { ...r2, type: 'reasoning' });
-    problems.splice(9, 0, { ...r1, type: 'reasoning' });
+  if (bank && bank.length > 0) {
+    const rSet = new Set();
+    let rAttempts = 0;
+    while(problems.length < 30 && rAttempts < 50) {
+      const idx = randInt(100 + rAttempts, seed, 0, bank.length - 1);
+      if (!rSet.has(idx)) {
+         rSet.add(idx);
+         problems.push({ ...bank[idx], type: 'reasoning' });
+      }
+      rAttempts++;
+    }
+  }
+
+  // Fallback: fill to exactly 30 if reasoning bank is too small or missing
+  while(problems.length < 30) {
+    problems.push({ type: 'basic', question: `${baseMax + problems.length} + ${baseMin} = ?`, answer: baseMax + problems.length + baseMin, operation: '+' });
   }
 
   return problems;
