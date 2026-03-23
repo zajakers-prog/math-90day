@@ -1,7 +1,7 @@
-import { seededRandom } from '../utils/problemGenerator.js';
+import { seedRandom } from '../utils/problemGenerator.js';
 
 function randInt(seed, min, max) {
-  return Math.floor(seededRandom(seed) * (max - min + 1)) + min;
+  return Math.floor(seedRandom(seed) * (max - min + 1)) + min;
 }
 
 export const REASONING_BANK = {
