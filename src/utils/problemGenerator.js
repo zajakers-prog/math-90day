@@ -1,16 +1,21 @@
 import { CURRICULUM_KR } from '../data/curriculumKR.js';
 import { CURRICULUM_US } from '../data/curriculumUS.js';
 import { REASONING_BANK } from '../data/reasoning.js';
+import { generateConceptProblem } from './conceptGenerator.js';
 
-export function seededRandom(seed) {
-  let t = seed += 0x6D2B79F5;
-  t = Math.imul(t ^ (t >>> 15), t | 1);
-  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-  return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+// Mulberry32 PRNG (Fast, deterministic, safe)
+export function seededRandom(a) {
+  return function() {
+    var t = a += 0x6D2B79F5;
+    t = Math.imul(t ^ t >>> 15, t | 1);
+    t ^= t + Math.imul(t ^ t >>> 7, t | 61);
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  }
 }
 
-export function seedRandom(index, seed) {
-  return seededRandom(seed + index * 1234567);
+export function seedRandom(seed, attempt = 0) {
+   const prng = seededRandom(seed + attempt * 17);
+   return prng();
 }
 
 export function getSeedForDay(region, grade, day) {
@@ -87,6 +92,17 @@ export function generateProblems(region, grade, day) {
     
     while (attempts < 50) {
       const s = seed + i * 1000 + attempts * 137;
+      
+      // Check if it's a domain-specific concept (Geometry, Measurement, Data, Pattern, Algebra)
+      if (type.includes('geo-') || type.includes('meas-') || type.includes('data-') || type.includes('pattern-') || type.includes('algebra') || type.includes('eq-basic') || type.includes('percent') || type.includes('ratio')) {
+         problem = generateConceptProblem(type, s, region, min, max, attempts);
+         if (problem && !usedQuestions.has(problem.question)) {
+           usedQuestions.add(problem.question);
+           break;
+         }
+         if (problem) { attempts++; continue; }
+      }
+      
       const a = randInt(i, s, min, max);
       let b = randInt(i + 100, s, min, max);
       
