@@ -35,7 +35,18 @@ function randInt(index, seed, min, max) {
 export function generateProblems(region, grade, day) {
   const problems = [];
   const curriculumMap = region === 'KR' ? CURRICULUM_KR : CURRICULUM_US;
-  const gradeKey = String(grade);
+  const originalGradeKey = String(grade);
+  let targetGradeKey = originalGradeKey;
+  
+  // Implement 90-day review concept: downgrade the grade level by 1.
+  if (targetGradeKey === '6') targetGradeKey = '5';
+  else if (targetGradeKey === '5') targetGradeKey = '4';
+  else if (targetGradeKey === '4') targetGradeKey = '3';
+  else if (targetGradeKey === '3') targetGradeKey = '2';
+  else if (targetGradeKey === '2') targetGradeKey = '1';
+  else if (targetGradeKey === '1' && region === 'US') targetGradeKey = 'K';
+  
+  const gradeKey = targetGradeKey;
   
   // Calculate week from day (1~90) -> (1~18)
   const week = Math.min(Math.ceil(day / 5), 18);
@@ -46,7 +57,7 @@ export function generateProblems(region, grade, day) {
   const baseMin = curriculum.range ? curriculum.range[0] : 1;
   const baseMax = curriculum.range ? curriculum.range[1] : 9;
   
-  const seed = getSeedForDay(region, gradeKey, day);
+  const seed = getSeedForDay(region, originalGradeKey, day);
   const usedQuestions = new Set();
 
   // Scaffolding: Tier 1 (Warm-up), Tier 2 (Core), Tier 3 (Application)
@@ -110,9 +121,9 @@ export function generateProblems(region, grade, day) {
 
     // A generic generator matching keywords in `type`
     if (type.includes('word-add') || type.includes('word-sub') || type.includes('word-mix')) {
-      // Very simple english word problems for US
-      const names = ['Tom', 'Jane', 'Sam', 'Lucy', 'Alex'];
-      const items = ['apples', 'candies', 'toys', 'books'];
+      const isKR = region === 'KR';
+      const names = isKR ? ['철수', '영희', '민수', '지수', '민지'] : ['Tom', 'Jane', 'Sam', 'Lucy', 'Alex'];
+      const items = isKR ? ['사과', '사탕', '장난감', '연필'] : ['apples', 'candies', 'toys', 'books'];
       const n1 = names[randInt(i, s, 0, names.length-1)];
       const i1 = items[randInt(i+1, s, 0, items.length-1)];
       const isAdd = type.includes('word-add') || (type.includes('word-mix') && seedRandom(i, s) > 0.5);
@@ -122,7 +133,9 @@ export function generateProblems(region, grade, day) {
       if (isAdd) {
         problem = {
           type: 'word',
-          question: `${n1} has ${num1} ${i1}. Gets ${num2} more. Total?`,
+          question: isKR 
+            ? `${n1}에게 ${i1}가 ${num1}개 있습니다. 친구가 ${num2}개를 더 주었습니다. 모두 몇 개입니까?`
+            : `${n1} has ${num1} ${i1}. Gets ${num2} more. Total?`,
           answer: num1 + num2,
           operation: 'word',
           isTextAnswer: false
@@ -132,7 +145,9 @@ export function generateProblems(region, grade, day) {
         const small = Math.min(num1, num2);
         problem = {
           type: 'word',
-          question: `${n1} had ${big} ${i1}. Lost ${small}. How many left?`,
+          question: isKR
+            ? `${n1}에게 ${i1}가 ${big}개 있었습니다. 그중 ${small}개를 잃어버렸습니다. 남은 것은 몇 개입니까?`
+            : `${n1} had ${big} ${i1}. Lost ${small}. How many left?`,
           answer: big - small,
           operation: 'word',
           isTextAnswer: false
