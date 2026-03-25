@@ -114,8 +114,8 @@ export function generateProblems(region, grade, day) {
          if (problem) { attempts++; continue; }
       }
       
-      const a = randInt(i, s, min, max);
-      let b = randInt(i + 100, s, min, max);
+      const a = randInt(i, s, Math.max(2, min), Math.max(2, max));
+      let b = randInt(i + 100, s, Math.max(2, min), Math.max(2, max));
       
       problem = { type: 'basic', question: 'Error = ?', answer: 0, operation: '+' };
 
@@ -129,7 +129,7 @@ export function generateProblems(region, grade, day) {
       const isAdd = type.includes('word-add') || (type.includes('word-mix') && seedRandom(i, s) > 0.5);
       
       let num1 = a;
-      let num2 = randInt(i, s, 1, Math.min(a, 20)); // Keep it simple
+      let num2 = randInt(i, s, 2, Math.max(2, Math.min(a, 20))); // Keep it simple
       if (isAdd) {
         problem = {
           type: 'word',
@@ -167,7 +167,7 @@ export function generateProblems(region, grade, day) {
     } else if (type.includes('div') && !type.includes('frac')) {
       // Ensure clean division
       const divisor = Math.max(2, Math.min(b, 15));
-      const quotient = Math.max(2, Math.min(Math.floor(a/divisor), 20));
+      const quotient = randInt(i+200, s, 2, 9);
       const dividend = divisor * quotient;
       const isRem = type.includes('rem');
       
