@@ -77,11 +77,40 @@ export default function Session({
     const current = problems[currentIndex];
     
     let isCorrect = false;
-    if (current.isTextAnswer || current.type === 'word' || current.type === 'frac') {
-      isCorrect = userAnswer.replace(/\s/g,'').toLowerCase() === String(current.answer).replace(/\s/g,'').toLowerCase();
-    } else {
-      isCorrect = (parseFloat(userAnswer) || 0) === parseFloat(current.answer);
-    } // Handle fractions/decimals properly
+    const cleaned = userAnswer.replace(/[\s,]/g, '').toLowerCase();
+    const expected = String(current.answer).replace(/[\s,]/g, '').toLowerCase();
+
+    // Fraction answer: support "3/8" format
+    if (cleaned.includes('/') && expected.includes('/')) {
+      const [uN, uD] = cleaned.split('/').map(Number);
+      const [eN, eD] = expected.split('/').map(Number);
+      isCorrect = uD !== 0 && eD !== 0 && uN * eD === eN * uD;
+    }
+    // Time answer: accept multiple formats (405, 4:05, 4시5분)
+    else if (current.hint && (current.hint.includes('시') || current.hint.includes('time') || current.hint.includes('clock'))) {
+      const normalized = cleaned.replace(/[:시분hm]/g, '');
+      isCorrect = normalized === expected || cleaned === expected;
+    }
+    // Text/decimal answer: compare strings with tolerance
+    else if (current.isTextAnswer) {
+      const uVal = parseFloat(cleaned);
+      const eVal = parseFloat(expected);
+      if (!isNaN(uVal) && !isNaN(eVal)) {
+        isCorrect = Math.abs(uVal - eVal) < 0.01;
+      } else {
+        isCorrect = cleaned === expected;
+      }
+    }
+    // Numeric answer
+    else {
+      const uVal = parseFloat(cleaned);
+      const eVal = parseFloat(expected);
+      if (!isNaN(uVal) && !isNaN(eVal)) {
+        isCorrect = Math.abs(uVal - eVal) < 0.01;
+      } else {
+        isCorrect = cleaned === expected;
+      }
+    }
 
     if (isCorrect) {
       if (!reviewMode) setScore((prev) => prev + 1);
